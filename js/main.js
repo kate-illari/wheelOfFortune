@@ -10,7 +10,7 @@ var prerenderCallbacks = [animate],
 
 lastTimeStepOccured = updateTime();
 
-var test = new S.BonusWheel({
+var wheel = new S.BonusWheel({
     name: "freespins",
     spineSlot: "1st_back",
     highlightSlot: "1st_back2",
@@ -40,9 +40,9 @@ if(!window.localStorage.getItem("itemsList")){
 
 // move the sprite to the center of the screen
 
-test.position.set(app.screen.width / 2, app.screen.height / 2);
+wheel.position.set(app.screen.width / 2, app.screen.height / 2);
 
-app.stage.addChild(test);
+app.stage.addChild(wheel);
 
 // Listen for animate update
 app.ticker.add(function(delta) {
@@ -89,13 +89,13 @@ function spacePressHandler(event) {
         } else {
             sectorToStopOn = findSectorToStopOn();
 
-            test.start();
+            wheel.start();
             document.removeEventListener("keypress", spacePressHandler);
 
-            test.setStoppingAngle(sectorToStopOn);
-            test.startStopping().then(function () {
+            wheel.setStoppingAngle(sectorToStopOn);
+            wheel.startStopping().then(function () {
                 document.addEventListener("keypress", spacePressHandler);
-                test.playGiftAnimation(itemsList[sectorToStopOn].name);
+                wheel.playGiftAnimation(itemsList[sectorToStopOn].name);
             });
         }
     }

@@ -17,6 +17,9 @@ S.BonusWheel = {
 
         var me = this;
 
+        me.background = me._initBackground(me, "wheel_bg");
+        me.background.anchor.set(0.5,0.5);
+
         //degrees per frame
         me.maxSpeed = config.maxSpeed;
         me.minSpeed = config.minSpeed;
@@ -35,6 +38,10 @@ S.BonusWheel = {
         me.reset();
     },
 
+    _initBackground: function (container, imageName) {
+        return container.addChild(new PIXI.Sprite.fromImage("assets/"+imageName+".jpg"))
+    },
+
     _initWheelSprite: function (container, imageName) {
         var sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
@@ -47,7 +54,7 @@ S.BonusWheel = {
         var sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
         container.addChild(sprite);
-        sprite.position.y = -150;
+        sprite.position.y = -410;
 
         return sprite;
     },
