@@ -11,6 +11,23 @@ S.BonusWheel = {
         //time fraction of the whole acceleration time
         timeFraction: 1/500
     },
+
+    SECTOR_ITEMS: [
+        "pick",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle",
+        "bottle"
+    ],
+
+    WHEEL_ITEMS_CENTER_OFFSET: 250,
     
     constructor: function (config, onStartBounceCompleteCallback) {
         S.BonusWheel.superclass.constructor.apply(this, arguments);
@@ -25,6 +42,8 @@ S.BonusWheel = {
         me.minSpeed = config.minSpeed;
 
         me.sprite = me._initWheelSprite(me, "wheelWin");
+        me.wheelItems = me._initWheelItems(me.sprite);
+
         //will be added to a separate spine slot:
         me.highlightSprite = me._initSprite(config.image, PIXI.BLEND_MODES.ADD);
         me.sectorsAngles = me._mapSectorsAgles(config.sectors);
@@ -50,6 +69,31 @@ S.BonusWheel = {
         return sprite;
     },
 
+    /**
+     * Adds wheel items - sprites that rotate together with the wheel
+     *
+     * @param {PIXI.Container|PIXI.Sprite} parent - wheelItems will be added here
+     * @returns {Array<S.BonusWheelItem>}
+     * @private
+     */
+    _initWheelItems: function(parent){
+        var me = this,
+            whellItems = [];
+
+        me.SECTOR_ITEMS.forEach(function (item, index) {
+            whellItems.push(new S.BonusWheelItem({
+                    parent: parent,
+                    texture: new PIXI.Texture.fromImage("assets/" + item + ".png"),
+                    sectorIndex: index,
+                    centerOffset: me.WHEEL_ITEMS_CENTER_OFFSET,
+                    totalSectorsNum: me.SECTOR_ITEMS.length
+                })
+            )
+        });
+
+        return whellItems;
+    },
+
     _initPickSprite: function (container, imageName) {
         var sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
@@ -60,7 +104,8 @@ S.BonusWheel = {
     },
 
     _initGiftSprite: function (container, imageName) {
-        var sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
+        var me = this,
+            sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
         container.addChild(sprite);
         sprite.scale.set(0.1,0.1);
@@ -69,32 +114,44 @@ S.BonusWheel = {
         sprite.animation = new Animation.Holder({
             addToAnimationLoop: true,
             target: sprite,
-            onEnd: function () {
-                sprite.visible = false;
-            },
+            onEnd: me._onWinAnimationComplete.bind(me, sprite),
             children: [
                 {
                     prop: "position",
                     animate: {
                         200: {y: -250},
                         800: {y: 0},
-                        1500: {y: 0}
+                        1500: {y: 0},
+                        2500: {y: -250},
                     }
                 },
                 {
                     prop: "scale",
                     animate: {
-                        200: {x: 0.1, y: 0.1},
-                        700: {x: 1, y: 1},
-                        1000: {x: 0.8, y: 0.8},
-                        1300: {x: 1, y: 1},
-                        1500: {x: 1, y: 1}
+                        200: {x: 1, y: 1},
+                        700: {x: 2, y: 2},
+                        1000: {x: 1.6, y: 1.6},
+                        1300: {x: 2, y: 2},
+                        1500: {x: 2, y: 2},
+                        2500: {x: 1, y: 1},
                     }
                 }
             ]
         });
 
         return sprite;
+    },
+
+    /**
+     *
+     * @param animSprite - win presentation sprite
+     * @private
+     */
+    _onWinAnimationComplete: function(animSprite){
+        animSprite.visible = false;
+        this.wheelItems.forEach(function(wheelItem){
+            wheelItem.show();
+        });
     },
 
     _initSprite: function (imageName, blendMode) {
@@ -372,9 +429,20 @@ S.BonusWheel = {
 
     playGiftAnimation: function (name) {
         console.warn(name);
+
+        this._hideCurrentWheelItem();
         this.gift.texture = new PIXI.Sprite.fromImage("assets/" + name + ".png").texture;
         this.gift.visible = true;
         this.gift.animation.play();
+    },
+
+    _hideCurrentWheelItem: function(){
+        var me = this,
+            totalSectorsNum = me.SECTOR_ITEMS.length,
+            currentItemIndex = Math.round( totalSectorsNum / me.CIRCLE_DEG * me.stopAngle),
+            currentWheelItem = me.wheelItems[currentItemIndex];
+
+        currentWheelItem.hide();
     },
 
     reset: function () {
