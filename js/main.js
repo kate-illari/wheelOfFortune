@@ -10,33 +10,38 @@ var prerenderCallbacks = [animate],
 
 lastTimeStepOccured = updateTime();
 
+
+if(!window.localStorage.getItem("itemsList")){
+    window.localStorage.setItem("itemsList", JSON.stringify([
+            { name: "sticker", count: 1 },
+            { name: "notebook", count: 2 },
+            { name: "bottle", count: 2 },
+            { name: "mug", count: 5 },
+            { name: "sticker", count: 4 },
+            { name: "gift", count: 50 },
+            { name: "notebook", count: 2 },
+            { name: "mug", count: 2 },
+            { name: "gift", count: 2 },
+            { name: "notebook", count: 2 },
+            { name: "gift", count: 50 },
+            { name: "sticker", count: 2 }
+        ])
+    );
+}
+
 var wheel = new S.BonusWheel({
     name: "freespins",
     spineSlot: "1st_back",
     highlightSlot: "1st_back2",
-    sectors: [0,1,2,3,4,5,6,7,8,2,6,7],
+    sectors: [0,1,2,3,4,5,6,7,8,9,10,11],
     maxSpeed: 6,
     minSpeed: 0.2,
     accelerationDuration: 1000,
-    minimumSpinsBeforeStop: 2
+    minimumSpinsBeforeStop: 2,
+    sectorItemsList: getSectorItemsList()
 }, function () {
     console.log("onStartBounceCompleteCallback");
 });
-
-if(!window.localStorage.getItem("itemsList")){
-    window.localStorage.setItem("itemsList", JSON.stringify([
-            { name: "STUB", count: 0 },
-            { name: "notebook", count: 10 },
-            { name: "bottle", count: 150 },
-            { name: "mug", count: 30 },
-            { name: "sticker", count: 48 },
-            { name: "gift", count: 8 },
-            { name: "notebook", count: 60 },
-            { name: "mug", count: 36 },
-            { name: "sticker", count: 9 }
-        ])
-    );
-}
 
 // move the sprite to the center of the screen
 
@@ -50,6 +55,17 @@ app.ticker.add(function(delta) {
         cb();
     });
 });
+
+function getSectorItemsList() {
+    var list = [];
+
+    JSON.parse(window.localStorage.getItem("itemsList")).forEach(function (item) {
+        list.push(item.name);
+    });
+
+    console.warn(list);
+    return list;
+}
 
 function animate(){
     animationBuffer.forEach(function(holder){
@@ -139,7 +155,6 @@ function getRandomItemAccordingToProbability() {
 
     random = randomInt(0, 100);
 
-    console.error(probabilityArray[random]);
     return probabilityArray[random];
 }
 

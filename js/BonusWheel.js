@@ -34,6 +34,8 @@ S.BonusWheel = {
 
         var me = this;
 
+        me.sectorItemsList = config.sectorItemsList;
+
         me.background = me._initBackground(me, "wheel_bg");
         me.background.anchor.set(0.5,0.5);
 
@@ -80,13 +82,13 @@ S.BonusWheel = {
         var me = this,
             whellItems = [];
 
-        me.SECTOR_ITEMS.forEach(function (item, index) {
+        me.sectorItemsList.forEach(function (item, index) {
             whellItems.push(new S.BonusWheelItem({
                     parent: parent,
                     texture: new PIXI.Texture.fromImage("assets/" + item + ".png"),
                     sectorIndex: index,
                     centerOffset: me.WHEEL_ITEMS_CENTER_OFFSET,
-                    totalSectorsNum: me.SECTOR_ITEMS.length
+                    totalSectorsNum: me.sectorItemsList.length
                 })
             )
         });
@@ -108,7 +110,7 @@ S.BonusWheel = {
             sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
         container.addChild(sprite);
-        sprite.scale.set(0.1,0.1);
+        sprite.scale.set(0.05);
         sprite.position.y = -250;
         sprite.visible = false;
         sprite.animation = new Animation.Holder({
@@ -128,12 +130,12 @@ S.BonusWheel = {
                 {
                     prop: "scale",
                     animate: {
-                        200: {x: 1, y: 1},
+                        200: {x: 0.05, y: 0.05},
                         700: {x: 2, y: 2},
                         1000: {x: 1.6, y: 1.6},
                         1300: {x: 2, y: 2},
                         1500: {x: 2, y: 2},
-                        2500: {x: 1, y: 1},
+                        2500: {x: 0.05, y: 0.05},
                     }
                 }
             ]
@@ -411,6 +413,7 @@ S.BonusWheel = {
      * @returns {void}
      */
     setStoppingAngle: function (itemToStopOn) {
+        console.log({itemToStopOn});
         var me = this,
             targetAngles = me.sectorsAngles[itemToStopOn],
             targetAnglesCount = targetAngles.length,
@@ -438,7 +441,7 @@ S.BonusWheel = {
 
     _hideCurrentWheelItem: function(){
         var me = this,
-            totalSectorsNum = me.SECTOR_ITEMS.length,
+            totalSectorsNum = me.sectorItemsList.length,
             currentItemIndex = Math.round( totalSectorsNum / me.CIRCLE_DEG * me.stopAngle),
             currentWheelItem = me.wheelItems[currentItemIndex];
 
