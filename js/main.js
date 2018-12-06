@@ -13,18 +13,18 @@ lastTimeStepOccured = updateTime();
 
 if(!window.localStorage.getItem("itemsList")){
     window.localStorage.setItem("itemsList", JSON.stringify([
-            { name: "sticker", count: 1 },
+            { name: "finn", count: 1 },
             { name: "notebook", count: 2 },
-            { name: "bottle", count: 2 },
+            { name: "max", count: 4 },
             { name: "mug", count: 5 },
-            { name: "sticker", count: 4 },
-            { name: "gift", count: 50 },
-            { name: "notebook", count: 2 },
-            { name: "mug", count: 2 },
-            { name: "gift", count: 2 },
-            { name: "notebook", count: 2 },
-            { name: "gift", count: 50 },
-            { name: "sticker", count: 2 }
+            { name: "bottle", count: 4 },
+            { name: "notebook", count: 50 },
+            { name: "magnet", count: 40 },
+            { name: "bag", count: 2 },
+            { name: "max", count: 40 },
+            { name: "raincoat", count: 2 },
+            { name: "notebook", count: 50 },
+            { name: "magnet", count: 40 }
         ])
     );
 }

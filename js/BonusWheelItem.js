@@ -16,7 +16,7 @@ S.BonusWheelItem = {
         config.parent.addChild(this);
 
         this.anchor.set(0.5);
-        this.scale.set(0.05);
+        this.scale.set(config.scale);
         this.updatePositionAndRotation(config.totalSectorsNum, config.sectorIndex, config.centerOffset);
     },
 

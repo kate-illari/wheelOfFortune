@@ -12,22 +12,8 @@ S.BonusWheel = {
         timeFraction: 1/500
     },
 
-    SECTOR_ITEMS: [
-        "pick",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle",
-        "bottle"
-    ],
-
-    WHEEL_ITEMS_CENTER_OFFSET: 250,
+    WHEEL_ITEMS_CENTER_OFFSET: 300,
+    WHEEL_ITEMS_STARTING_SCALE: 0.15,
     
     constructor: function (config, onStartBounceCompleteCallback) {
         S.BonusWheel.superclass.constructor.apply(this, arguments);
@@ -88,7 +74,8 @@ S.BonusWheel = {
                     texture: new PIXI.Texture.fromImage("assets/" + item + ".png"),
                     sectorIndex: index,
                     centerOffset: me.WHEEL_ITEMS_CENTER_OFFSET,
-                    totalSectorsNum: me.sectorItemsList.length
+                    totalSectorsNum: me.sectorItemsList.length,
+                    scale: me.WHEEL_ITEMS_STARTING_SCALE
                 })
             )
         });
@@ -110,7 +97,7 @@ S.BonusWheel = {
             sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
         container.addChild(sprite);
-        sprite.scale.set(0.05);
+        sprite.scale.set(me.WHEEL_ITEMS_STARTING_SCALE);
         sprite.position.y = -250;
         sprite.visible = false;
         sprite.animation = new Animation.Holder({
@@ -121,21 +108,21 @@ S.BonusWheel = {
                 {
                     prop: "position",
                     animate: {
-                        200: {y: -250},
+                        200: {y: -(me.WHEEL_ITEMS_CENTER_OFFSET)},
                         800: {y: 0},
-                        1500: {y: 0},
-                        2500: {y: -250},
+                        5000: {y: 0},
+                        5500: {y: -(me.WHEEL_ITEMS_CENTER_OFFSET)},
                     }
                 },
                 {
                     prop: "scale",
                     animate: {
-                        200: {x: 0.05, y: 0.05},
-                        700: {x: 2, y: 2},
-                        1000: {x: 1.6, y: 1.6},
-                        1300: {x: 2, y: 2},
-                        1500: {x: 2, y: 2},
-                        2500: {x: 0.05, y: 0.05},
+                        200: {x: me.WHEEL_ITEMS_STARTING_SCALE, y: me.WHEEL_ITEMS_STARTING_SCALE},
+                        700: {x: 1, y: 1},
+                        1000: {x: 0.6, y: 0.6},
+                        1300: {x: 1, y: 1},
+                        5000: {x: 1, y: 1},
+                        5500: {x: me.WHEEL_ITEMS_STARTING_SCALE, y: me.WHEEL_ITEMS_STARTING_SCALE},
                     }
                 }
             ]
