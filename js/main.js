@@ -34,14 +34,14 @@ var wheel = new S.BonusWheel({
     spineSlot: "1st_back",
     highlightSlot: "1st_back2",
     sectors: [0,1,2,3,4,5,6,7,8,9,10,11],
-    maxSpeed: 6,
-    minSpeed: 0.2,
-    accelerationDuration: 1000,
-    minimumSpinsBeforeStop: 2,
+    maxSpeed: 16,
+    minSpeed: 0.15,
+    accelerationDuration: 1800,
+    minimumSpinsBeforeStop: 3,
     sectorItemsList: getSectorItemsList()
 }, function () {
     console.log("onStartBounceCompleteCallback");
-});
+}, app);
 
 // move the sprite to the center of the screen
 

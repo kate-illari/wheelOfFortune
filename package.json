@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "pixi-spine": "^1.5.19",
     "pixi.js": "^4.8.2"
   }
 }

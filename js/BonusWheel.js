@@ -15,14 +15,19 @@ S.BonusWheel = {
     WHEEL_ITEMS_CENTER_OFFSET: 300,
     WHEEL_ITEMS_STARTING_SCALE: 0.20,
     
-    constructor: function (config, onStartBounceCompleteCallback) {
+    constructor: function (config, onStartBounceCompleteCallback, app) {
         S.BonusWheel.superclass.constructor.apply(this, arguments);
+
+        console.error(app);
 
         var me = this;
 
         me.sectorItemsList = config.sectorItemsList;
 
         me.background = me._initBackground(me, "wheel_bg");
+
+        me._initBgSpine(me, "glow", app);
+
         me.background.anchor.set(0.5,0.5);
 
         //degrees per frame
@@ -47,6 +52,35 @@ S.BonusWheel = {
 
     _initBackground: function (container, imageName) {
         return container.addChild(new PIXI.Sprite.fromImage("assets/"+imageName+".jpg"))
+    },
+
+    _initBgSpine: function (container, spineName, app) {
+        var me = this,
+            glow;
+
+        PIXI.loader
+            .add('glow', 'assets/spine/glow.json')
+            .load(onAssetsLoaded);
+
+        function onAssetsLoaded(loader,res) {
+            // instantiate the spine animation
+            glow = new PIXI.spine.Spine(res.glow.spineData);
+            glow.skeleton.setToSetupPose();
+            glow.update(0);
+            glow.autoUpdate = false;
+
+            me.background.addChild(glow);
+
+            // once position and scaled, set the animation to play
+            glow.state.setAnimation(0, 'spin', true);
+            app.ticker.add(function() {
+                glow.update(0.02);
+            });
+
+            glow.visible = false;
+            me.bgAnimation = glow;
+        }
+
     },
 
     _initWheelSprite: function (container, imageName) {
@@ -139,6 +173,7 @@ S.BonusWheel = {
         this.wheelItems.forEach(function(wheelItem){
             wheelItem.show();
         });
+        this.bgAnimation.visible = false;
     },
 
     _initSprite: function (imageName, blendMode) {
@@ -331,6 +366,8 @@ S.BonusWheel = {
     start: function (callback) {
         this.onWheelStartCallback = callback;
         this.animations.accelerationTicker.play();
+
+
     },
 
     startDeceleration: function (prevWheelStoppingDistance, onWheelStopped) {
@@ -341,7 +378,8 @@ S.BonusWheel = {
         me._updateStoppingDistance(prevWheelStoppingDistance);
         me.animations.decelerationTicker.play();
 
-
+        this.bgAnimation.visible = true;
+        this.bgAnimation.state.setAnimation(0, 'spin', true);
     },
 
     /**
@@ -422,6 +460,8 @@ S.BonusWheel = {
         this.gift.texture = new PIXI.Sprite.fromImage("assets/" + name + ".png").texture;
         this.gift.visible = true;
         this.gift.animation.play();
+
+        this.bgAnimation.state.setAnimation(0, 'win', true);
     },
 
     _hideCurrentWheelItem: function(){
