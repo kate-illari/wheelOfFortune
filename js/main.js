@@ -210,6 +210,18 @@ function removeItems(itemName, amount) {
     window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
 }
 
+function addItem(name, index, amount) {
+    var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
+        updatedList = itemsList.map(function (item, itemIdx) {
+            if(name === item.name && index === itemIdx){
+                item.count += amount;
+            }
+            return item;
+        });
+
+    window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
+}
+
 
 
 document.addEventListener("keypress", spacePressHandler);

@@ -13,7 +13,7 @@ S.BonusWheel = {
     },
 
     WHEEL_ITEMS_CENTER_OFFSET: 300,
-    WHEEL_ITEMS_STARTING_SCALE: 0.15,
+    WHEEL_ITEMS_STARTING_SCALE: 0.20,
     
     constructor: function (config, onStartBounceCompleteCallback) {
         S.BonusWheel.superclass.constructor.apply(this, arguments);
@@ -87,7 +87,7 @@ S.BonusWheel = {
         var sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
         container.addChild(sprite);
-        sprite.position.y = -410;
+        sprite.position.y = -460;
 
         return sprite;
     },
@@ -109,7 +109,7 @@ S.BonusWheel = {
                     prop: "position",
                     animate: {
                         200: {y: -(me.WHEEL_ITEMS_CENTER_OFFSET)},
-                        800: {y: 0},
+                        1500: {y: 0},
                         5000: {y: 0},
                         5500: {y: -(me.WHEEL_ITEMS_CENTER_OFFSET)},
                     }
@@ -118,9 +118,7 @@ S.BonusWheel = {
                     prop: "scale",
                     animate: {
                         200: {x: me.WHEEL_ITEMS_STARTING_SCALE, y: me.WHEEL_ITEMS_STARTING_SCALE},
-                        700: {x: 1, y: 1},
-                        1000: {x: 0.6, y: 0.6},
-                        1300: {x: 1, y: 1},
+                        1500: {x: 1, y: 1},
                         5000: {x: 1, y: 1},
                         5500: {x: me.WHEEL_ITEMS_STARTING_SCALE, y: me.WHEEL_ITEMS_STARTING_SCALE},
                     }
