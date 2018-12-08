@@ -110,8 +110,9 @@ function spacePressHandler(event) {
 
             wheel.setStoppingAngle(sectorToStopOn);
             wheel.startStopping().then(function () {
-                document.addEventListener("keypress", spacePressHandler);
-                wheel.playGiftAnimation(itemsList[sectorToStopOn].name);
+                wheel.playGiftAnimation(itemsList[sectorToStopOn].name, function () {
+                    document.addEventListener("keypress", spacePressHandler);
+                })
             });
         }
     }
@@ -210,10 +211,10 @@ function removeItems(itemName, amount) {
     window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
 }
 
-function addItem(name, index, amount) {
+function addItem(index, amount) {
     var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
         updatedList = itemsList.map(function (item, itemIdx) {
-            if(name === item.name && index === itemIdx){
+            if(index === itemIdx){
                 item.count += amount;
             }
             return item;
@@ -223,5 +224,20 @@ function addItem(name, index, amount) {
 }
 
 
+function removeItem(index, amount) {
+    var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
+        updatedList = itemsList.map(function (item, itemIdx) {
+            if(index === itemIdx){
+                if(item.count - amount > 0){
+                    item.count -= amount;
+                }else{
+                    item.count = 0;
+                }
+            }
+            return item;
+        });
+
+    window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
+}
 
 document.addEventListener("keypress", spacePressHandler);

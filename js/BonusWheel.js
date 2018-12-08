@@ -137,7 +137,6 @@ S.BonusWheel = {
         sprite.animation = new Animation.Holder({
             addToAnimationLoop: true,
             target: sprite,
-            onEnd: me._onWinAnimationComplete.bind(me, sprite),
             children: [
                 {
                     prop: "position",
@@ -453,15 +452,23 @@ S.BonusWheel = {
         return this.stoppingDistance;
     },
 
-    playGiftAnimation: function (name) {
-        console.warn(name);
+    playGiftAnimation: function (name, onEndCallback) {
+        var me = this,
+            gift = me.gift;
 
-        this._hideCurrentWheelItem();
-        this.gift.texture = new PIXI.Sprite.fromImage("assets/" + name + ".png").texture;
-        this.gift.visible = true;
-        this.gift.animation.play();
+        me._hideCurrentWheelItem();
 
-        this.bgAnimation.state.setAnimation(0, 'win', true);
+        gift.texture = new PIXI.Sprite.fromImage("assets/" + name + ".png").texture;
+        gift.visible = true;
+
+        gift.animation.onEnd = function () {
+            me._onWinAnimationComplete(gift);
+            onEndCallback();
+        };
+
+        gift.animation.play();
+
+        me.bgAnimation.state.setAnimation(0, 'win', true);
     },
 
     _hideCurrentWheelItem: function(){
