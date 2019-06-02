@@ -21,9 +21,6 @@ export class BonusWheel extends PIXI.Container {
     
     constructor (config, onStartBounceCompleteCallback, app) {
         super();
-
-        console.error(app);
-
         var me = this;
 
         me.sectorItemsList = config.sectorItemsList;
@@ -42,7 +39,6 @@ export class BonusWheel extends PIXI.Container {
         me.wheelItems = me._initWheelItems(me.sprite);
 
         //will be added to a separate spine slot:
-        console.error(config);
         me.highlightSprite = typeof config.image !== "undefined" ? me._initSprite(config.image, PIXI.BLEND_MODES.ADD) : me._initEmptySprite();
         me.sectorsAngles = me._mapSectorsAgles(config.sectors);
         me.animations = me._initAnimations(config);
@@ -111,8 +107,6 @@ export class BonusWheel extends PIXI.Container {
 
         me.sectorItemsList.forEach(function (item, index) {
             sizedContainer = new PIXI.Container();
-
-            console.warn({item});
 
             bonusWheelItem = new BonusWheelItem({
                 parent: sizedContainer,
@@ -463,7 +457,6 @@ export class BonusWheel extends PIXI.Container {
      * @returns {void}
      */
     setStoppingAngle (itemToStopOn) {
-        console.log({itemToStopOn});
         var me = this,
             targetAngles = me.sectorsAngles[itemToStopOn],
             targetAnglesCount = targetAngles.length,
@@ -523,7 +516,6 @@ export class BonusWheel extends PIXI.Container {
     }
 
     changeTexture (itemIndex, texture) {
-        console.warn("trying to change texture");
         this.wheelItems[itemIndex].texture = texture;
     }
 
