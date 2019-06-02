@@ -1,6 +1,4 @@
-Sys.ns("S");
-
-S.BonusWheelItem = {
+export class BonusWheelItem extends PIXI.Sprite {
     /**
      *
      * @param {object} config - wheelItem config
@@ -10,15 +8,14 @@ S.BonusWheelItem = {
      * @param {number} config.centerOffset - distance from wheel center to wheelItem center
      * @param {number} config.totalSectorsNum - total number of sectors on the parent wheel
      */
-    constructor: function (config) {
-        S.BonusWheelItem.superclass.constructor.call(this, config.texture);
-
+    constructor (config) {
+        super(config.texture);
         config.parent.addChild(this);
 
         this.anchor.set(0.5);
         this.scale.set(config.scale);
         this.updatePositionAndRotation(config.totalSectorsNum, config.sectorIndex, config.centerOffset);
-    },
+    }
 
     /**
      * Positions the item to the proper sector and rotates in a way that item's bottom is directed
@@ -28,7 +25,7 @@ S.BonusWheelItem = {
      * @param {number} sectorIndex - sector the item is added to
      * @param {number} centerOffset - distance from wheel center to wheelItem center
      */
-    updatePositionAndRotation: function(totalSectorsNum, sectorIndex, centerOffset){
+    updatePositionAndRotation(totalSectorsNum, sectorIndex, centerOffset){
         var me = this,
             angle = (2 * Math.PI / totalSectorsNum) * sectorIndex,
             y = - centerOffset * Math.cos(angle),
@@ -36,15 +33,13 @@ S.BonusWheelItem = {
 
         me.position.set(x, y);
         me.rotation = -angle;
-    },
+    }
 
-    hide: function(){
+    hide(){
         this.visible = false;
-    },
+    }
 
-    show: function(){
+    show(){
         this.visible = true;
     }
-};
-
-S.BonusWheelItem = Sys.extend(PIXI.Sprite, S.BonusWheelItem, "S.BonusWheelItemBonusWheelItem");
+}

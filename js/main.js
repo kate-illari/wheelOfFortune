@@ -1,30 +1,38 @@
+import {ScrollContainer} from "./ScrollContainer";
+import {StorageManager} from "./StorageItemsManager";
+import {BonusWheel} from "./BonusWheel";
+import {OpenCloseButton} from "./OpenCloseButton";
+import {Menu} from "./Menu";
+
+export const animationBuffer = [];
+
 var app = new PIXI.Application(window.innerWidth, window.innerHeight, {backgroundColor : 0x000000});
 document.body.appendChild(app.view);
 
-var ambientSound = new Audio("../assets/sounds/ambient.mp3");
-var winSound = new Audio("../assets/sounds/AUTOMOBILE.mp3");
+var ambientSound = new Audio("assets/sounds/ambient.mp3");
+var winSound = new Audio("assets/sounds/AUTOMOBILE.mp3");
 
 ambientSound.addEventListener("loadeddata", () => {
     ambientSound.volume = 0.5;
     ambientSound.play();
+    ambientSound.loop = true;
 });
 
 
-var scrollContainer = new S.ScrollContainer(0, 0, 500, 1000, 1500);
+var scrollContainer = new ScrollContainer(0, 0, 500, 1000, 1500);
 
 var prerenderCallbacks = [animate],
     lastTimeStepOccured = 0,
     currentStepTime = 0,
-    currentTime = 0,
-    animationBuffer = [];
+    currentTime = 0;
 
 lastTimeStepOccured = updateTime();
 
 if(!window.localStorage.getItem("itemsList")){
-    S.StorageManager.initStorage();
+    StorageManager.initStorage();
 }
 
-var wheel = new S.BonusWheel({
+var wheel = new BonusWheel({
     name: "freespins",
     spineSlot: "1st_back",
     highlightSlot: "1st_back2",
@@ -33,7 +41,8 @@ var wheel = new S.BonusWheel({
     minSpeed: 0.15,
     accelerationDuration: 1800,
     minimumSpinsBeforeStop: 3,
-    sectorItemsList: S.StorageManager.getSectorItemsList()
+    sectorItemsList: StorageManager.getSectorItemsList(),
+    image: "SYM0"
 }, function () {
     console.log("onStartBounceCompleteCallback");
 }, app);
@@ -83,7 +92,7 @@ function updateTime() {
 
 app.stage.addChild(wheel);
 
-var openCloseButton = new S.OpenCloseButton({
+var openCloseButton = new OpenCloseButton({
     openCallback: function () {
         menu.showMenu();
     },
@@ -92,12 +101,12 @@ var openCloseButton = new S.OpenCloseButton({
     }
 });
 
-var menu = new S.Menu({
+var menu = new Menu({
     onItemImgChange: function (index, texture) {
         wheel.changeTexture(index, texture);
     },
     onCountChange: function (index, count) {
-        S.StorageManager.setItemCount(index, count);
+        StorageManager.setItemCount(index, count);
     }
 });
 
@@ -108,7 +117,7 @@ app.stage.addChild(openCloseButton);
 
 function spacePressHandler(event) {
     if(event.keyCode === 32){
-        var itemsLeft = !S.StorageManager.isNoMoreItems(),
+        var itemsLeft = !StorageManager.isNoMoreItems(),
             itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             sectorToStopOn;
 
@@ -116,7 +125,7 @@ function spacePressHandler(event) {
             console.error("no more items at all");
         } else {
             winSound.play();
-            sectorToStopOn = S.StorageManager.findSectorToStopOn();
+            sectorToStopOn = StorageManager.findSectorToStopOn();
             menu.onStorageUpdated();
             console.warn("stopping at: ", sectorToStopOn);
 

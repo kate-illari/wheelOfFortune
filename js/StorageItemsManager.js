@@ -1,29 +1,27 @@
-Sys.ns("S");
-
-S.StorageManager = {
-    initStorage: function () {
+export class StorageManager{
+    static initStorage () {
         window.localStorage.setItem("itemsList", JSON.stringify([
-                {name: "SYM0", count: 1},
+                {name: "SYM0", count: 2},
                 {name: "SYM1", count: 1},
-                {name: "SYM2", count: 1},
-                {name: "SYM3", count: 1},
-                {name: "SYM4", count: 1},
+                {name: "SYM2", count: 4},
+                {name: "SYM3", count: 3},
+                {name: "SYM4", count: 5},
                 {name: "SYM5", count: 1},
-                {name: "SYM6", count: 1},
-                {name: "SYM7", count: 1},
-                {name: "SYM8", count: 1},
-                {name: "SYM9", count: 1},
-                {name: "SYM10", count: 1},
+                {name: "SYM6", count: 3},
+                {name: "SYM7", count: 3},
+                {name: "SYM8", count: 2},
+                {name: "SYM9", count: 2},
+                {name: "SYM10", count: 3},
                 {name: "SYM11", count: 1}
             ])
         );
-    },
+    }
 
-    randomInt: function (min, max) {
+    static randomInt (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
+    }
 
-    getSectorItemsList: function () {
+    static getSectorItemsList () {
         var list = [];
 
         JSON.parse(window.localStorage.getItem("itemsList")).forEach(function (item) {
@@ -32,9 +30,9 @@ S.StorageManager = {
 
         console.warn(list);
         return list;
-    },
+    }
 
-    addItems: function (itemName, amount) {
+    static addItems (itemName, amount) {
         var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             updatedList = itemsList.map(function (item) {
                 if (itemName === item.name) {
@@ -44,9 +42,9 @@ S.StorageManager = {
             });
 
         window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-    },
+    }
 
-    removeItems: function (itemName, amount) {
+    static removeItems (itemName, amount) {
         var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             updatedList = itemsList.map(function (item) {
                 if (itemName === item.name) {
@@ -60,9 +58,9 @@ S.StorageManager = {
             });
 
         window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-    },
+    }
 
-    addItem: function (index, amount) {
+    static addItem (index, amount) {
         var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             updatedList = itemsList.map(function (item, itemIdx) {
                 if (index === itemIdx) {
@@ -72,10 +70,10 @@ S.StorageManager = {
             });
 
         window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-    },
+    }
 
 
-    removeItem: function (index, amount) {
+    static removeItem (index, amount) {
         var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             updatedList = itemsList.map(function (item, itemIdx) {
                 if (index === itemIdx) {
@@ -89,9 +87,9 @@ S.StorageManager = {
             });
 
         window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-    },
+    }
 
-    setItemCount: function (index, amount) {
+    static setItemCount (index, amount) {
         var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             updatedList = itemsList.map(function (item, itemIdx) {
                 if (index === itemIdx) {
@@ -101,9 +99,9 @@ S.StorageManager = {
             });
 
         window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-    },
+    }
 
-    countItemsProbabilities: function (items, total) {
+    static countItemsProbabilities (items, total) {
         var probabilities = [];
 
         items.forEach(function (item) {
@@ -111,9 +109,9 @@ S.StorageManager = {
         });
 
         return probabilities;
-    },
+    }
 
-    countTotalItemsSum: function (itemsList) {
+    static countTotalItemsSum (itemsList) {
         var sum = 0;
 
         itemsList.forEach(function (item) {
@@ -121,9 +119,9 @@ S.StorageManager = {
         });
 
         return sum;
-    },
+    }
 
-    getRandomItemAccordingToProbability: function () {
+    static getRandomItemAccordingToProbability () {
         var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             totalItemsSum = this.countTotalItemsSum(itemsList),
             itemsProbabilities = this.countItemsProbabilities(itemsList, totalItemsSum),
@@ -139,13 +137,13 @@ S.StorageManager = {
         random = this.randomInt(0, 100);
 
         return probabilityArray[random];
-    },
+    }
 
-    isNoMoreItems: function () {
+    static isNoMoreItems () {
         return JSON.parse(window.localStorage.getItem("itemsList")).every(item => item.count === 0);
-    },
+    }
 
-    findSectorToStopOn: function () {
+    static findSectorToStopOn () {
         var me = this,
             randomIndex = me.getRandomItemAccordingToProbability(),
             itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
@@ -164,6 +162,6 @@ S.StorageManager = {
             return me.findSectorToStopOn();
         }
     }
-};
+}
 
 

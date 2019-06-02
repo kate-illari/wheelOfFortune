@@ -1,8 +1,6 @@
-Sys.ns("S");
-
-S.ScrollContainer = {
-    constructor: function(x, y, width, height, itemHeight) {
-        S.ScrollContainer.superclass.constructor.call(this);
+export class ScrollContainer extends PIXI.Container{
+    constructor(x, y, width, height, itemHeight) {
+        super();
 
         this.po = new PIXI.Container();
         this.scrollContainer = new PIXI.Container();
@@ -39,9 +37,9 @@ S.ScrollContainer = {
         this.po.touchstart = e => this.onmousedown(e);
         this.po.touchend = e => this.onmouseup(e);
         this.po.touchendoutside = e => this.onmouseup(e);
-    },
+    }
 
-    onmousemove: function(e) {
+    onmousemove(e) {
         const { originalEvent } = e.data;
         var clientY = !originalEvent.touches ? originalEvent.clientY : originalEvent.touches[0].clientY;
 
@@ -55,9 +53,9 @@ S.ScrollContainer = {
                 this.scrollContainer.y += this.lastDiff;
             }
         }
-    },
+    }
 
-    onmousedown: function(e) {
+    onmousedown(e) {
         const { originalEvent } = e.data;
         const clientY = !originalEvent.touches ? originalEvent.clientY : originalEvent.touches[0].clientY;
         this.mousedown = true;
@@ -67,9 +65,9 @@ S.ScrollContainer = {
         this.lastPos = {
             y: clientY
         };
-    },
+    }
 
-    onmouseup: function() {
+    onmouseup() {
         if (this.lastDiff) {
             let goY = this.scrollContainer.y + this.lastDiff * 10;
             let ease = Quad.easeOut;
@@ -103,7 +101,7 @@ S.ScrollContainer = {
         this.mousedown = false;
         this.lastPos = null;
         this.lastDiff = null;
-    },
+    }
 
     // This should be called every tick. Use only for scrolling containers with lots of elements for performance.
     hideOffscreenElements() {
@@ -116,13 +114,11 @@ S.ScrollContainer = {
                 item.visible = true;
             }
         }
-    },
+    }
 
-    addItem: function(item) {
+    addItem(item) {
         this.scrollContainer.addChild(item);
         this.items.push(item);
         item.y = (this.items.length - 1) * this.itemHeight;
     }
-};
-
-S.ScrollContainer = Sys.extend(PIXI.Container, S.ScrollContainer, "S.ScrollContainer");
+}

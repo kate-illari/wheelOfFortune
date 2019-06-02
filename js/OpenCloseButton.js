@@ -1,17 +1,14 @@
-Sys.ns("S");
-
-S.OpenCloseButton = {
-
-    CONFIG: {
-        x: 10,
+const CONFIG = {
+    x: 10,
         y: 10
-    },
+};
 
-    constructor: function (config) {
-        S.OpenCloseButton.superclass.constructor.call(this, config.texture);
+export class OpenCloseButton extends PIXI.Sprite{
 
+    constructor (config) {
+        super();
 
-        this.position.set(this.CONFIG.x, this.CONFIG.y);
+        this.position.set(CONFIG.x, CONFIG.y);
         this.interactive = true;
         this.buttonMode = true;
         this.on('pointerdown', this.onButtonClick.bind(this));
@@ -20,9 +17,9 @@ S.OpenCloseButton = {
 
         this.currentState = "closed";
         this.setClosedTexture();
-    },
+    }
 
-    onButtonClick: function () {
+    onButtonClick () {
         if(this.currentState === "closed"){
             this.currentState = "opened";
             this.setOpenedTexture();
@@ -34,21 +31,19 @@ S.OpenCloseButton = {
         } else {
             console.error("Check for error, current state is ", this.currentState);
         }
-    },
+    }
 
-    setClosedTexture: function () {
+    setClosedTexture () {
         this.texture = new PIXI.Texture.from("assets/images/buttons/settings.png")
-    },
+    }
 
-    setOpenedTexture: function () {
+    setOpenedTexture () {
         this.texture = new PIXI.Texture.from("assets/images/buttons/error.png")
-    },
+    }
 
-    onForseClosed: function () {
+    onForseClosed () {
         this.currentState = "closed";
         this.setClosedTexture();
         this.closeCallback();
     }
-};
-
-S.OpenCloseButton = Sys.extend(PIXI.Sprite, S.OpenCloseButton, "S.OpenCloseButton");
+}

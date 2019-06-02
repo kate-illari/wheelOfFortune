@@ -12,10 +12,7 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "pixi-spine": "^1.5.19",
-    "pixi.js": "^4.8.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",

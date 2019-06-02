@@ -1,12 +1,9 @@
-Sys.ns("S");
+const OFFSET = 10;
+const TOP_OFFSET = 80;
 
-S.Menu = {
-
-    OFFSET: 10,
-    TOP_OFFSET: 80,
-
-    constructor: function (config) {
-        S.Menu.superclass.constructor.apply(this, arguments);
+export class Menu extends PIXI.Container{
+    constructor (config) {
+        super();
 
         this.onItemImgChange = config.onItemImgChange;
         this.onCountChange = config.onCountChange;
@@ -20,33 +17,33 @@ S.Menu = {
         document.body.appendChild(input);
 
         const itemsListContainer = new PIXI.Container();
-        itemsListContainer.position.y = this.TOP_OFFSET;
+        itemsListContainer.position.y = TOP_OFFSET;
 
         const itemsList = JSON.parse(window.localStorage.getItem("itemsList"));
         this.itemGroups = this.createItemsListInterface(itemsList, itemsListContainer);
         this.addChild(itemsListContainer);
 
         this.hideMenu();
-    },
+    }
 
-    onStorageUpdated: function () {
+    onStorageUpdated () {
         console.log("updating the storage");
         const itemsList = JSON.parse(window.localStorage.getItem("itemsList"));
         this.itemGroups.forEach(function (item, index) {
             item.countText.text = itemsList[index].count;
         });
 
-    },
+    }
 
-    showMenu: function () {
+    showMenu () {
         this.visible = true;
-    },
+    }
 
-    hideMenu: function () {
+    hideMenu () {
         this.visible = false;
-    },
+    }
 
-    createItemsListInterface: function (itemsList, parentContainer) {
+    createItemsListInterface (itemsList, parentContainer) {
         var me = this,
             itemGroup, itemGroups = [];
 
@@ -59,24 +56,24 @@ S.Menu = {
             );
 
         return itemGroups;
-    },
+    }
 
-    createItemContainer: function (parentContainer, item, itemIndex) {
+    createItemContainer (parentContainer, item, itemIndex) {
         const itemContainer = new PIXI.Container();
         let itemGroup = {};
 
         itemGroup.button = this.addButton(itemContainer, item.name, itemIndex);
         itemGroup.countText = this.addTxt(itemContainer, item.count);
         itemGroup.buttons = this.addPlusMinusButtons(itemContainer, itemIndex, item.count);
-        itemContainer.position.set(this.OFFSET, (this.OFFSET * itemIndex) + (itemIndex * itemContainer.height));
+        itemContainer.position.set(OFFSET, (OFFSET * itemIndex) + (itemIndex * itemContainer.height));
 
         this.addItemsListBg(itemContainer);
 
         parentContainer.addChild(itemContainer);
         return itemGroup;
-    },
+    }
 
-    addItemsListBg: function (container) {
+    addItemsListBg (container) {
         var graphics = new PIXI.Graphics();
 
         graphics.beginFill(0x3d5c5c);
@@ -86,9 +83,9 @@ S.Menu = {
         graphics.blendMode = 2;
 
         container.addChildAt(graphics, 0);
-    },
+    }
 
-    addButton: function (parentContainer, name, itemIndex) {
+    addButton (parentContainer, name, itemIndex) {
         const me = this;
         const texture = new PIXI.Texture.from("assets/images/prizes/" + name + ".png");
         const itemImage = new PIXI.Sprite(texture);
@@ -101,9 +98,9 @@ S.Menu = {
         itemImage.on('pointerdown', me.onItemClick.bind(me, itemImage, itemIndex));
 
         parentContainer.addChild(itemImage);
-    },
+    }
 
-    addTxt: function (parentContainer, count) {
+    addTxt (parentContainer, count) {
         const style = new PIXI.TextStyle({
                 fill: '#d8df75',
                 fontSize: 15,
@@ -116,9 +113,9 @@ S.Menu = {
 
         parentContainer.addChild(txt);
         return txt;
-    },
+    }
 
-    addPlusMinusButtons: function (parentContainer, itemIndex) {
+    addPlusMinusButtons (parentContainer, itemIndex) {
         const me = this;
         let buttons = {};
 
@@ -145,9 +142,9 @@ S.Menu = {
             });
 
         return buttons;
-    },
+    }
 
-    initIncrementButton: function (config) {
+    initIncrementButton (config) {
         let button = new PIXI.Sprite(config.texture);
 
         button.position.set(config.x, config.y);
@@ -159,16 +156,16 @@ S.Menu = {
         config.parentContainer.addChild(button);
 
         return button;
-    },
+    }
 
-    onPlusButtonClick: function (itemIndex) {
+    onPlusButtonClick (itemIndex) {
         let newCount = JSON.parse(window.localStorage.getItem("itemsList"))[itemIndex].count + 1;
 
         this.onCountChange(itemIndex, newCount);
         this.updateCountText(itemIndex, newCount);
-    },
+    }
 
-    onMinusButtonClick: function (itemIndex) {
+    onMinusButtonClick (itemIndex) {
         const currentCount = JSON.parse(window.localStorage.getItem("itemsList"))[itemIndex].count;
         let newCount;
 
@@ -180,23 +177,23 @@ S.Menu = {
 
         this.onCountChange(itemIndex, newCount);
         this.updateCountText(itemIndex, newCount);
-    },
+    }
 
-    updateCountText: function (itemIndex, newCount) {
+    updateCountText (itemIndex, newCount) {
         if(!newCount){
             this.itemGroups[itemIndex].countText.text = JSON.parse(window.localStorage.getItem("itemsList"))[itemIndex].count;
             return;
         }
         this.itemGroups[itemIndex].countText.text = newCount;
-    },
+    }
 
-    onItemClick: function (targetSprite, itemIndex) {
+    onItemClick (targetSprite, itemIndex) {
         document.getElementById("inpt").click();
         this.targetSprite = targetSprite;
         this.itemIndex = itemIndex;
-    },
+    }
 
-    updateImageLocally: function () {
+    updateImageLocally () {
         var me = this,
             file = document.getElementById("inpt").files[0],
             reader = new FileReader();
@@ -213,6 +210,4 @@ S.Menu = {
     }
 
 
-};
-
-S.Menu = Sys.extend(PIXI.Container, S.Menu, "S.MenuMenu");
+}

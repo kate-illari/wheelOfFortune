@@ -1,109 +1,6 @@
-/*global Sys, Animation*/
-Sys.ns("Animation");
+import {animationBuffer} from "./main"
 
-/**
- * The animation holder is a container class holding properties for a certain holder.
- *
- * This object contains all information needed to perform the animation.
- *
- * The config object sets the initial properties on the holder.
- * So the config object can have all the properties as keys.
- *
- *       var animation = new Animation.Holder({
- *           target : me.logoSprite,                     // a PIXI.Sprite object, but a target can be any object
- *           loop : true,
- *           children : [                                // objects put here will create new Animation.Holder objects and added to the main one
- *               {
- *                   prop : "position",
- *                   animate : {
- *                       0 : {x : 100},                  // this will affect me.logoSprite.position.x
- *                       10000 : {x : 1000},
- *                       20000 : {x : 100}
- *                   }
- *               },
- *               {
- *                   prop : "rotation",
- *                   loop : true,                        // the loop here will be independent of the main loop
- *                   animate : {
- *                       0 : 0,
- *                       500 : Math.PI,
- *                       1000 : Math.PI*2
- *                   },
- *                   onStart : function(){               // this callBack will be called once until we stop and start the whole animation again
- *                       this.tempValue = 0;
- *                   },
- *                   onUpdate : function(){              // this will increase the tempValue every frame
- *                       ++this.tempValue;
- *                   }
- *               },
- *               {
- *                   animate : {
- *                       0 : {alpha : 1 },               // instead of setting prop to "alpha" you can write it like this as well
- *                       5000 : {alpha : 0.3 }
- *                   }
- *               },
- *               {
- *                   prop : "scale",
- *                   animate : [
- *                       {
- *                           time : startTime,           // if you want to set the time with a variable you can do it like this
- *                           value : {x : 1, y : 1}
- *                       },
- *                       {                               // this format is also required if you want to add event, callback or goTo to the keyFram
- *                           time : startTime + 500,
- *                           value : {x : 3, y : 1.5},
- *                           fireEvent : {
- *                               event : "view:scaleHalfway",
- *                               scope : me
- *                           }
- *                       },
- *                       {
- *                           time : startTime + 2000,
- *                           value : {x : 2, y : 1}
- *                       }
- *                   ]
- *               }
- *           ]
- *       });
- *
- *        var test2 = new Animation.Holder({
- *           id : "test animation nr 2",
- *           target : borderSprite,
- *           onStart : function(){
- *               this.target.alpha = 0.3;
- *           },
- *           delay : 500
- *       });
- *
- *       var subTest3 = new Animation.Holder({          // this one is created without a target so it won't do anything
- *           prop : "position",                         // if we try to play it. But as soon as we add it to a parent
- *           animate : {                                // we will try to use the parents target
- *               0 : {x : 67, y : 23},
- *               500 : {x : 123, y : 789}
- *           },
- *           onEnd : function(me){
- *               me.fireEvent("view:testDone");
- *               this.target.visible = false;
- *           }
- *       });
- *
- *       test2.addChild(subTest3);                      // adding a child
- *       // alternative: subTest3.setParent(test2);     // or setting a parent
- *
- *       var animationContainer = new Animation.Holder({
- *          id : "the super animation",
- *       });
- *
- *       animationContainer.addChild([animation, test2]);
- *
- *       Game.stage.view.animationManager.addToAnimationLoop(animationContainer);
- *
- *       animationContainer*.play();
- *
- * @class Animation.Holder
- * @extends Sys.Observable
- */
-Animation.Holder =  {
+export class AnimationHolder {
     /**
      * @property {String} [id=""] The identifier for this animation, if you don't specify one we will try to use
      * parent.id + ":" + prop + "Animation"
@@ -173,7 +70,7 @@ Animation.Holder =  {
      *
      * @param {Object} config The config object
      */
-    constructor : function(config) {
+    constructor (config) {
         var me = this,
             defaultProp = {
                 id                  : undefined,    // the identifier for this animation
@@ -222,7 +119,7 @@ Animation.Holder =  {
             animationBuffer.push(me);
         }
 
-    },
+    }
 
     /**
      * Parse the config so that it matches the actual object properties.
@@ -230,7 +127,7 @@ Animation.Holder =  {
      * @param config
      * @return {Object} The parsed properties
      */
-    parseConfig : function (config) {
+    parseConfig  (config) {
         var properties = {
                 animation : {
                     keyFrames : [],
@@ -336,7 +233,7 @@ Animation.Holder =  {
                 }
                 else {
                     child.parent = {target : config.target};
-                    animation = new Animation.Holder(child);
+                    animation = new AnimationHolder(child);
                 }
                 animation.parent = parent;
                 tempChildrenContainer.push( animation );
@@ -346,14 +243,14 @@ Animation.Holder =  {
         }
 
         return properties;
-    },
+    }
 
     /**
      * Run the holder and it's children
      *
      * @param {Object} timeObj The object containing the time
      */
-    run : function(timeObj) {
+    run (timeObj) {
         var me = this,
             timeStep = timeObj.timeStep;
 
@@ -410,7 +307,7 @@ Animation.Holder =  {
             // restore the animation on completion so we can start it from the beginning on the next play()
             me.restore();
         }
-    },
+    }
 
     /**
      * Runs each animation operation that is set for the holder
@@ -418,7 +315,7 @@ Animation.Holder =  {
      * @private
      * @param {Number} currentStepTime the current time step
      */
-    doAnimation: function (currentStepTime) {
+    doAnimation (currentStepTime) {
         var me = this,
             numKeyFrames = me.animation.keyFrames.length;
 
@@ -437,7 +334,7 @@ Animation.Holder =  {
             me.running = false;
             me.readyToLoop = true;
         }
-    },
+    }
 
     /**
      * Play the animation
@@ -446,7 +343,7 @@ Animation.Holder =  {
      * specified (or true) we play all the children. If you send in an empty array [] we'll only play the current.
      * @param {Boolean} [root] If this is the first object we call this function on (will be false for all it's children)
      */
-    play : function(children, root) {
+    play (children, root) {
         var me = this,
             isRoot = Sys.isDefined(root) ? root : true;
 
@@ -463,9 +360,9 @@ Animation.Holder =  {
         if (isRoot){
             me.runParent();
         }
-    },
+    }
 
-    runParent : function(){
+    runParent (){
         var me = this;
 
         if ( Sys.isDefined(me.parent) ){
@@ -473,7 +370,7 @@ Animation.Holder =  {
 
             me.parent.runParent();
         }
-    },
+    }
 
     /**
      * Pause the animation
@@ -481,11 +378,11 @@ Animation.Holder =  {
      * @param {Array} [children] An array with children that we want to pause. If none is
      * specified we pause all the children. If you send in an empty array [] we'll only pause the current holder.
      */
-    pause : function(children) {
+    pause (children) {
         this.running = false;
 
         this.handleItems("pause", children);
-    },
+    }
 
     /**
      * Stop the animation and reset it to the beginning. Will do it for all the children as well
@@ -494,7 +391,7 @@ Animation.Holder =  {
      * specified we stop all the children. If you send in an empty array [] we'll only stop the current.
      * @param {Boolean} [root] If this is the first object we call this function on (will be false for all it's children)
      */
-    stop : function(children, root) {
+    stop (children, root) {
         var me = this,
             isRoot = Sys.isDefined(root) ? root : true;
 
@@ -505,7 +402,7 @@ Animation.Holder =  {
         if ( isRoot ){
             me.restore(children, true);
         }
-    },
+    }
 
     /**
      * Restores the basic properties of the holder in order to run it again.
@@ -514,7 +411,7 @@ Animation.Holder =  {
      * specified (or true) we restore all the children. If you send in an empty array [] we'll only restore the current holder.
      * @param {Boolean} [root] If this is the first object we call this function on (will be false for all it's children)
      */
-    restore : function(children, root) {
+    restore (children, root) {
         var me = this,
             isRoot = Sys.isDefined(root) ? root : true;
 
@@ -529,7 +426,7 @@ Animation.Holder =  {
         if ( me.running && isRoot ){
             me.play(children, true);
         }
-    },
+    }
 
     /**
      * Restores the basic properties of the holder in order to run it again.
@@ -538,7 +435,7 @@ Animation.Holder =  {
      * specified (or true) we restore all the children. If you send in an empty array [] we'll only restore the current holder.
      * @param {Boolean} [root] If this is the first object we call this function on (will be false for all it's children)
      */
-    restoreOnLoop : function(children, root) {
+    restoreOnLoop (children, root) {
         var me = this,
             isRoot = Sys.isDefined(root) ? root : true;
 
@@ -551,9 +448,9 @@ Animation.Holder =  {
 
             me.handleItems("restoreOnLoop");
         }
-    },
+    }
 
-    restoreAnimation : function(){
+    restoreAnimation (){
         this.animation.time = 0;
         this.animation.step = 0;
 
@@ -564,7 +461,7 @@ Animation.Holder =  {
 
             // add more stuff
         });
-    },
+    }
 
     /**
      * @private
@@ -572,7 +469,7 @@ Animation.Holder =  {
      *
      * @param {Object} config The configuration
      */
-    updateOperation : function(config) {
+    updateOperation (config) {
         var me = this,
             obj = {};
 
@@ -586,40 +483,7 @@ Animation.Holder =  {
         //me.applyDefaultValuesToOperation(me);
 
         me.restore();
-    },
-
-    ///**
-    // * Will remove the specified operations from the holder.
-    // *
-    // * @param {String|Array} operation The operation to remove from the item (or an array with operations)
-    // */
-    //removeOperation: function (operation) {
-    //    var me = this;
-    //
-    //    if (Sys.isArray(operation)) {
-    //        operation.forEach(function(op) {
-    //            if (Sys.isDefined(me.operations[op])) {
-    //                delete me.operations[op];
-    //                delete me.operationSteps[op];
-    //            }
-    //        });
-    //    }
-    //    else if (Sys.isDefined(me.operations[operation])) {
-    //        delete me.operations[operation];
-    //        delete me.operationSteps[operation];
-    //    }
-    //},
-
-    ///**
-    // * @private
-    // * Set the default operation properties on the prop object
-    // */
-    //setOperationDefaultProperties : function() {
-    //    Sys.iterate(this.operations, function(key){
-    //        Animation.Operations[key].applyDefaultValuesToItem(this);
-    //        Animation.Operations[key].applyDefaultValuesToOperation(this);
-    //    });
-    //},
+    }
 
     /**
      * @private
@@ -628,15 +492,15 @@ Animation.Holder =  {
      * @param {String} type The function to call on the items
      * @param {Array} [selection] The optional array of items to handle
      */
-    handleItems : function(type, selection){
+    handleItems (type, selection){
         var items = (Sys.isDefined(selection) && Sys.isArray(selection)) ? selection : this.children;
 
         items.forEach(function(child){
             child[type](true, false);
         });
-    },
+    }
 
-    setParent : function(parent){
+    setParent (parent){
         this.parent = parent;
         parent.children.push(this);
 
@@ -644,9 +508,9 @@ Animation.Holder =  {
         if ( !Sys.isDefined(this.target) ){
             this.target = parent.target;
         }
-    },
+    }
 
-    addChild : function(children){
+    addChild (children){
         var me = this;
 
         if (Sys.isArray(children) ){
@@ -657,7 +521,7 @@ Animation.Holder =  {
         else if (Sys.isObj(children)){
             children.setParent(me);
         }
-    },
+    }
 
     /**
      * Will search children (and grandchildren) for a Holder that mach the key and value provide.
@@ -669,7 +533,7 @@ Animation.Holder =  {
      *
      * @return {object|boolean} the items that match our search criteria, or false if it didn't find anything
      */
-    findChild : function(value, byKey){
+    findChild (value, byKey){
         var key = Sys.isDefined(byKey) ? byKey : "id",
             item = false,
             searchChildren = function(items) {
@@ -703,14 +567,14 @@ Animation.Holder =  {
         }
 
         return item;
-    },
+    }
 
     /**
      * Performs the specified action on a given object.
      *
      * @param {Number} currentStepTime The time since the last render (ms)
      */
-    performAction : function(currentStepTime) {
+    performAction (currentStepTime) {
         var me = this,
             animation = me.animation,
             keyFrames = animation.keyFrames,
@@ -754,71 +618,9 @@ Animation.Holder =  {
         me.calculate(animation.time, currentKeyFrame, nextKeyFrame);
 
         return running;
+    }
 
-
-        //// If we have more than one key frame (i.e. we can interpolate between two values)
-        //if(numKeyFrames > nextKeyFrameIndex) {
-        //    nextKeyFrame = currentOperation[nextKeyFrameIndex];
-        //
-        //    // If we have reached the next key frame
-        //    if(currentTime >= nextKeyFrame.time) {
-        //
-        //        // Make sure that the callback and events are performed/fired on the current key-frame before we move to the next one
-        //        me.handleCallback(currentKeyFrame);
-        //        me.handleEvents(currentKeyFrame);
-        //        me.restoreCallbackOnIterations(currentKeyFrame);
-        //
-        //        // Determine the new current key frame
-        //        currentKeyFrameIndex = me.getNewKeyFrameIndex(item, nextKeyFrame);
-        //
-        //        // Set current key frame
-        //        currentKeyFrame = currentOperation[currentKeyFrameIndex];
-        //
-        //        // Set next keyframe
-        //        nextKeyFrameIndex = currentKeyFrameIndex + 1;
-        //
-        //        // If we have key frame remaining
-        //        if(numKeyFrames > nextKeyFrameIndex) {
-        //            nextKeyFrame = currentOperation[nextKeyFrameIndex];
-        //        }
-        //        // else make sure we reach the end frame
-        //        else {
-        //
-        //            var loopTimeOverFlow = currentTime - nextKeyFrame.time;
-        //            if ( item.loop && loopTimeOverFlow > 0 ){
-        //                item.operationSteps.animate = 0;
-        //                currentOperation.timeBuffer = loopTimeOverFlow;
-        //                currentKeyFrame = currentOperation[0];
-        //                nextKeyFrame = currentOperation[1];
-        //            }
-        //            else {
-        //                nextKeyFrame = currentKeyFrame;
-        //
-        //                // if we pass the last keyFrame the operation is no longer running
-        //                running = 0;
-        //            }
-        //        }
-        //    }
-        //
-        //    // If we have an callback to run on this step and have not already run it
-        //    me.handleCallback(currentKeyFrame);
-        //
-        //    // If we have an event to fire on this step and have not already fired it
-        //    me.handleEvents(currentKeyFrame);
-        //
-        //    // Perform the action given for each frame
-        //    me.calculate(item, currentOperation.timeBuffer, currentKeyFrame, nextKeyFrame);
-        //
-        //    // this value indicate that the operation is still running
-        //    return running;
-        //}
-        //else {
-        //    // return zero to indicate that this operation has ended
-        //    return 0;
-        //}
-    },
-
-    progressKeyFrame : function(toIndex){
+    progressKeyFrame (toIndex){
         var me = this,
             animation = me.animation,
             keyFrames = animation.keyFrames,
@@ -848,9 +650,9 @@ Animation.Holder =  {
             me.progressKeyFrame(0);
         }
 
-    },
+    }
 
-    doGoTo : function(keyFrame){
+    doGoTo (keyFrame){
         var me = this;
 
         me.animation.time = me.animation.keyFrames[keyFrame.goTo].time;
@@ -860,7 +662,7 @@ Animation.Holder =  {
         console.warn("Warning: goTo functionality not completed, use at own risk.");
         // TODO: fix goTo, callback resets when going back and callback firing when going forward etc.
         /*DEBUG_END*/
-    },
+    }
 
     /**
      * Calculates the time steps and sets the values that should be interpolated.
@@ -870,7 +672,7 @@ Animation.Holder =  {
      * @param {Object} currentStep The current frame
      * @param {Object} nextStep The next frame
      */
-    calculate : function(currentTime, currentStep, nextStep) {
+    calculate (currentTime, currentStep, nextStep) {
         var me = this,
             time = me.calculateTime(currentTime, currentStep, nextStep),
             from = currentStep.value,
@@ -887,31 +689,13 @@ Animation.Holder =  {
         else { // we only animate one number
             me.target[me.prop] = Animation.utils.getInterpolationValue(from, to, time, currentStep.ease);
         }
-    },
-
-    ///**
-    // * Update the operation default values.
-    // *
-    // * @param {Animation.Holder} item The animation item to affect
-    // */
-    //applyDefaultValuesToOperation : function(item) {
-    //    // Intentionally left blank
-    //},
-    //
-    ///**
-    // * Applies the default values of the operation to the item.
-    // *
-    // * @param {Animation.Holder} item The animation item
-    // */
-    //applyDefaultValuesToItem : function() {
-    //    // Intentionally left blank
-    //},
+    }
 
     /**
      * @private
      * @param {Object} currentKeyFrame The object holding the current key frame information
      */
-    handleCallback : function(currentKeyFrame) {
+    handleCallback (currentKeyFrame) {
         var callback = currentKeyFrame.callback,
             container;
 
@@ -934,96 +718,7 @@ Animation.Holder =  {
 
             currentKeyFrame.callbackCompleted = true;
         }
-    },
-
-    /**
-     * Instead of fire the event right away we store them in an array and
-     * fire them after the render pass is done.
-     *
-     * @private
-     * @param {Object} currentKeyFrame The object holding the current key frame information
-     */
-    //handleEvents : function(currentKeyFrame) {
-    //    var eventObject = currentKeyFrame.fireEvent,
-    //        container = Game.stage.view.animationManager.callbackContainer;
-    //
-    //    // If there is an event to fire and it has not already been fired
-    //    if(Sys.isDefined(eventObject) && !currentKeyFrame.eventFired) {
-    //        renderLoopEndEvents.push(eventObject);
-    //        currentKeyFrame.eventFired = true;
-    //    }
-    //},
-
-    /**
-     * Restore the event event if it should be fired more than once in a goTo loop.
-     *
-     * @private
-     * @param {Object} currentStep The current animation step
-     */
-    //restoreEventOnIterations : function(currentStep) {
-    //    var event = currentStep.fireEvent;
-    //
-    //    // If we have iterations
-    //    if(Sys.isDefined(event) && Sys.isDefined(event.iterations)) {
-    //        // If this is the first time we enter the method
-    //        if(!Sys.isDefined(event.remainingIterations)) {
-    //            event.remainingIterations = event.iterations;
-    //        }
-    //
-    //        event.remainingIterations--;
-    //
-    //        if(event.remainingIterations > 0) {
-    //            currentStep.eventFired = false;
-    //            currentStep.callbackCompleted = false;
-    //        }
-    //    }
-    //},
-
-    /**
-     * Restore the callback if it should be called more than once in a goTo loop.
-     *
-     * @private
-     * @param {Object} currentStep The current animation step
-     */
-    //restoreCallbackOnIterations : function(currentStep) {
-    //    var callback = currentStep.callback;
-    //
-    //    // If we have iterations
-    //    if(Sys.isDefined(callback) && callback.looping === true) {
-    //        currentStep.callbackCompleted = false;
-    //    }
-    //},
-
-    /**
-     * Returns the current operation step if one is defined or creating one with
-     * the default value zero if one is not.
-     *
-     * @private
-     * @param {Animation.Holder} item The animation item
-     * @param {String} operation The operation, which step index we want
-     * @return {Number} The step index number
-     */
-    //getCurrentOperationStep : function(item, operation) {
-    //    var steps = item.operationSteps;
-    //
-    //    // If it is not defined, create it and return 0
-    //    if(!steps[operation]) {
-    //        steps[operation] = 0;
-    //    }
-    //    return steps[operation];
-    //},
-    //
-    //getCurrentStep : function(item){
-    //    if ( !Sys.isDefined(item.operationSteps.animate) ){
-    //        item.operationSteps.animate = 0;
-    //    }
-    //
-    //    return item.operationSteps.animate;
-    //},
-    //
-    //getCurrentKeyFrameIndex : function(item, currentOperation, currentTime){
-    //
-    //},
+    }
 
     /**
      * Calculates the time vars.
@@ -1033,76 +728,21 @@ Animation.Holder =  {
      * @param {Object} currentStep The current frame
      * @param {Object} nextStep The next frame
      */
-    calculateTime : function(currentTime, currentStep, nextStep) {
+    calculateTime (currentTime, currentStep, nextStep) {
         var timeStep = currentTime - currentStep.time,
             totalTime = nextStep.time - currentStep.time;
 
         //If timeStep equals 0 and totalTime equals 0. The result will be NaN
         return totalTime !== 0 ? timeStep / totalTime : 1;
-    },
+    }
 
-    /**
-     * Get the index of the next key frame to use.
-     *
-     * @private
-     * @param {Animation.Holder} item The animation item
-     * @param {Object} nextKeyFrame The next key frame in the array
-     * @return {Number} The index of the new key frame
-     */
-    //getNewKeyFrameIndex : function(item, nextKeyFrame) {
-    //    var me = this,
-    //        goTo = nextKeyFrame.goTo,
-    //        iterations = Sys.isDefined(goTo) ? me.getIterations(nextKeyFrame) : false,
-    //        operation = item.operations[me.operation],
-    //
-    //        currentKeyFrameIndex = item.operationSteps[me.operation],
-    //        newKeyFrameIndex;
-    //
-    //    // If we are using goTo and have iterations remaining
-    //    if(Sys.isDefined(goTo) && (iterations > 1)) {
-    //        me.setTimeBuffer(item, operation[goTo].time);
-    //        me.restoreEventOnIterations(operation[goTo]);
-    //
-    //        newKeyFrameIndex = goTo;
-    //
-    //        // since we never really stop on the keyFrame with the goTo, we'll miss any events on it. so lets do a check here
-    //        me.handleEvents(nextKeyFrame);
-    //    }
-    //    else {
-    //        newKeyFrameIndex = currentKeyFrameIndex + 1;
-    //    }
-    //
-    //    item.operationSteps[me.operation] = newKeyFrameIndex;
-    //
-    //    return newKeyFrameIndex;
-    //},
-
-    /**
-     * Get the number of remaining iterations if they are defined, returns 2 as a default value.
-     *
-     * @private
-     * @param {Object} nextKeyFrame The next key frame
-     * @return {Number} The number of remaining iterations if they are defined, returns 2 as a default value
-     */
-    //getIterations : function(nextKeyFrame) {
-    //    if(Sys.isDefined(nextKeyFrame.iterations)) {
-    //        // If this is the first time we enter the method
-    //        if(!Sys.isDefined(nextKeyFrame.remainingIterations)) {
-    //            nextKeyFrame.remainingIterations = nextKeyFrame.iterations;
-    //        }
-    //
-    //        return --nextKeyFrame.remainingIterations;
-    //    }
-    //
-    //    return 2;
-    //},
 
     /**
      * Increase the timeBuffer
      *
      * @param {Number} time The time the time buffer should be increased
      */
-    increaseAnimationTime : function (time) {
+    increaseAnimationTime  (time) {
         if (!Sys.isDefined(this.animation.time)) {
             this.animation.time = time;
         }
@@ -1111,15 +751,13 @@ Animation.Holder =  {
         }
 
         return this.animation.time;
-    },
+    }
 
-    animate : function(config, play) {
+    animate (config, play) {
         this.updateOperation(config);
         if ( play ){
             this.play();
         }
     }
 
-};
-
-Animation.Holder = Sys.extend(Sys.Observable, Animation.Holder, "Animation.Holder");
+}
