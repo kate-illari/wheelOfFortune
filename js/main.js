@@ -1,32 +1,27 @@
 var app = new PIXI.Application(window.innerWidth, window.innerHeight, {backgroundColor : 0x000000});
 document.body.appendChild(app.view);
 
+var ambientSound = new Audio("../assets/sounds/ambient.mp3");
+var winSound = new Audio("../assets/sounds/AUTOMOBILE.mp3");
+
+ambientSound.addEventListener("loadeddata", () => {
+    ambientSound.volume = 0.5;
+    ambientSound.play();
+});
+
+
+var scrollContainer = new S.ScrollContainer(0, 0, 500, 1000, 1500);
+
 var prerenderCallbacks = [animate],
     lastTimeStepOccured = 0,
     currentStepTime = 0,
     currentTime = 0,
     animationBuffer = [];
 
-
 lastTimeStepOccured = updateTime();
 
-
 if(!window.localStorage.getItem("itemsList")){
-    window.localStorage.setItem("itemsList", JSON.stringify([
-            { name: "finn", count: 1 },
-            { name: "notebook", count: 2 },
-            { name: "max", count: 4 },
-            { name: "mug", count: 5 },
-            { name: "bottle", count: 4 },
-            { name: "notebook", count: 50 },
-            { name: "magnet", count: 40 },
-            { name: "bag", count: 2 },
-            { name: "max", count: 40 },
-            { name: "raincoat", count: 2 },
-            { name: "notebook", count: 50 },
-            { name: "magnet", count: 40 }
-        ])
-    );
+    S.StorageManager.initStorage();
 }
 
 var wheel = new S.BonusWheel({
@@ -38,34 +33,26 @@ var wheel = new S.BonusWheel({
     minSpeed: 0.15,
     accelerationDuration: 1800,
     minimumSpinsBeforeStop: 3,
-    sectorItemsList: getSectorItemsList()
+    sectorItemsList: S.StorageManager.getSectorItemsList()
 }, function () {
     console.log("onStartBounceCompleteCallback");
 }, app);
 
 // move the sprite to the center of the screen
-
 wheel.position.set(app.screen.width / 2, app.screen.height / 2);
 
-app.stage.addChild(wheel);
+window.addEventListener("resize", function() {
+    app.renderer.resize(window.innerWidth, window.innerHeight);
+    wheel.position.set(window.innerWidth / 2, window.innerHeight / 2);
+});
 
 // Listen for animate update
 app.ticker.add(function(delta) {
     prerenderCallbacks.forEach(function(cb) {
         cb();
     });
+    scrollContainer.hideOffscreenElements();
 });
-
-function getSectorItemsList() {
-    var list = [];
-
-    JSON.parse(window.localStorage.getItem("itemsList")).forEach(function (item) {
-        list.push(item.name);
-    });
-
-    console.warn(list);
-    return list;
-}
 
 function animate(){
     animationBuffer.forEach(function(holder){
@@ -94,17 +81,46 @@ function updateTime() {
     return now;
 }
 
+app.stage.addChild(wheel);
+
+var openCloseButton = new S.OpenCloseButton({
+    openCallback: function () {
+        menu.showMenu();
+    },
+    closeCallback: function () {
+        menu.hideMenu();
+    }
+});
+
+var menu = new S.Menu({
+    onItemImgChange: function (index, texture) {
+        wheel.changeTexture(index, texture);
+    },
+    onCountChange: function (index, count) {
+        S.StorageManager.setItemCount(index, count);
+    }
+});
+
+//app.stage.addChild(menu);
+scrollContainer.addChild(menu);
+app.stage.addChild(scrollContainer);
+app.stage.addChild(openCloseButton);
+
 function spacePressHandler(event) {
     if(event.keyCode === 32){
-        var itemsLeft = !isNoMoreItems(),
+        var itemsLeft = !S.StorageManager.isNoMoreItems(),
             itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             sectorToStopOn;
 
         if(!itemsLeft){
             console.error("no more items at all");
         } else {
-            sectorToStopOn = findSectorToStopOn();
+            winSound.play();
+            sectorToStopOn = S.StorageManager.findSectorToStopOn();
+            menu.onStorageUpdated();
+            console.warn("stopping at: ", sectorToStopOn);
 
+            openCloseButton.onForseClosed();
             wheel.start();
             document.removeEventListener("keypress", spacePressHandler);
 
@@ -112,132 +128,10 @@ function spacePressHandler(event) {
             wheel.startStopping().then(function () {
                 wheel.playGiftAnimation(itemsList[sectorToStopOn].name, function () {
                     document.addEventListener("keypress", spacePressHandler);
-                })
+                });
             });
         }
     }
-}
-
-function isNoMoreItems() {
-    return JSON.parse(window.localStorage.getItem("itemsList")).every(item => item.count === 0);
-}
-
-function findSectorToStopOn() {
-    var randomIndex = getRandomItemAccordingToProbability(),
-        itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
-        randomItem = itemsList[randomIndex];
-
-    console.error(randomItem);
-
-    if(randomItem.count > 0){
-        randomItem.count--;
-        window.localStorage.setItem("itemsList", JSON.stringify(itemsList));
-
-        return randomIndex;
-    } else {
-        console.warn("no more ", randomItem.name);
-        debugger;
-        return findSectorToStopOn();
-    }
-}
-
-function getRandomItemAccordingToProbability() {
-    var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
-        totalItemsSum = countTotalItemsSum(itemsList),
-        itemsProbabilities = countItemsProbabilities(itemsList, totalItemsSum),
-        probabilityArray = [],
-        random;
-
-    itemsList.forEach(function (item, idx) {
-        for(var i = 0; i < itemsProbabilities[idx]; i++){
-            probabilityArray.push(idx);
-        }
-    });
-
-    random = randomInt(0, 100);
-
-    return probabilityArray[random];
-}
-
-function countTotalItemsSum(itemsList) {
-    var sum = 0;
-
-    itemsList.forEach(function (item) {
-        sum += item.count;
-    });
-
-    return sum;
-}
-
-function countItemsProbabilities(items, total) {
-    var probabilities = [];
-
-    items.forEach(function (item) {
-        probabilities.push(Math.floor( item.count * 100 / total ));
-    });
-
-    return probabilities;
-}
-
-function randomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function addItems(itemName, amount) {
-    var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
-        updatedList = itemsList.map(function (item) {
-        if(itemName === item.name){
-            item.count += amount;
-        }
-        return item;
-    });
-
-    window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-}
-
-function removeItems(itemName, amount) {
-    var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
-        updatedList = itemsList.map(function (item) {
-        if(itemName === item.name){
-            if(item.count - amount > 0){
-                item.count -= amount;
-            }else{
-                item.count = 0;
-            }
-        }
-        return item
-    });
-
-    window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-}
-
-function addItem(index, amount) {
-    var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
-        updatedList = itemsList.map(function (item, itemIdx) {
-            if(index === itemIdx){
-                item.count += amount;
-            }
-            return item;
-        });
-
-    window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
-}
-
-
-function removeItem(index, amount) {
-    var itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
-        updatedList = itemsList.map(function (item, itemIdx) {
-            if(index === itemIdx){
-                if(item.count - amount > 0){
-                    item.count -= amount;
-                }else{
-                    item.count = 0;
-                }
-            }
-            return item;
-        });
-
-    window.localStorage.setItem("itemsList", JSON.stringify(updatedList));
 }
 
 document.addEventListener("keypress", spacePressHandler);

@@ -13,7 +13,11 @@ S.BonusWheel = {
     },
 
     WHEEL_ITEMS_CENTER_OFFSET: 300,
-    WHEEL_ITEMS_STARTING_SCALE: 0.20,
+    WHEEL_ITEMS_STARTING_SCALE: 1,
+    WHEEL_ITEM_CONFIG: {
+        width: 100,
+        height: 100
+    },
     
     constructor: function (config, onStartBounceCompleteCallback, app) {
         S.BonusWheel.superclass.constructor.apply(this, arguments);
@@ -44,14 +48,14 @@ S.BonusWheel = {
         me.onStartBounceCompleteCallback = onStartBounceCompleteCallback;
         me.config = config;
 
-        me.pick = me._initPickSprite(me, "pick");
+        me.pick = me._initPickSprite(me);
         me.gift = me._initGiftSprite(me, "gift");
 
         me.reset();
     },
 
     _initBackground: function (container, imageName) {
-        return container.addChild(new PIXI.Sprite.fromImage("assets/"+imageName+".jpg"))
+        return container.addChild(new PIXI.Sprite.fromImage("assets/images/"+imageName+".jpg"))
     },
 
     _initBgSpine: function (container, spineName, app) {
@@ -84,8 +88,8 @@ S.BonusWheel = {
     },
 
     _initWheelSprite: function (container, imageName) {
-        var sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
-
+        var sprite = new PIXI.Sprite.fromImage("assets/images/"+imageName+".png");
+        sprite.anchor.set(0.5, 0.5);
         container.addChild(sprite);
 
         return sprite;
@@ -100,26 +104,34 @@ S.BonusWheel = {
      */
     _initWheelItems: function(parent){
         var me = this,
+            sizedContainer,
+            bonusWheelItem,
             whellItems = [];
 
         me.sectorItemsList.forEach(function (item, index) {
-            whellItems.push(new S.BonusWheelItem({
-                    parent: parent,
-                    texture: new PIXI.Texture.fromImage("assets/" + item + ".png"),
-                    sectorIndex: index,
-                    centerOffset: me.WHEEL_ITEMS_CENTER_OFFSET,
-                    totalSectorsNum: me.sectorItemsList.length,
-                    scale: me.WHEEL_ITEMS_STARTING_SCALE
-                })
-            )
+            sizedContainer = new PIXI.Container();
+
+            bonusWheelItem = new S.BonusWheelItem({
+                parent: sizedContainer,
+                texture: new PIXI.Texture.fromImage("assets/images/prizes/" + item + ".png"),
+                sectorIndex: index,
+                centerOffset: me.WHEEL_ITEMS_CENTER_OFFSET,
+                totalSectorsNum: me.sectorItemsList.length
+            });
+
+            bonusWheelItem.width = me.WHEEL_ITEM_CONFIG.width;
+            bonusWheelItem.height = me.WHEEL_ITEM_CONFIG.height;
+
+            parent.addChild(sizedContainer);
+            whellItems.push(bonusWheelItem);
         });
 
         return whellItems;
     },
 
-    _initPickSprite: function (container, imageName) {
-        var sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
-
+    _initPickSprite: function (container) {
+        var sprite = new PIXI.Sprite.fromImage("assets/images/pick.png");
+        sprite.anchor.set(0.5, 0.5);
         container.addChild(sprite);
         sprite.position.y = -460;
 
@@ -131,7 +143,8 @@ S.BonusWheel = {
             sprite = this._initSprite(imageName, PIXI.BLEND_MODES.NORMAL);
 
         container.addChild(sprite);
-        sprite.scale.set(me.WHEEL_ITEMS_STARTING_SCALE);
+        sprite.width = 100;
+        sprite.height = 100;
         sprite.position.y = -250;
         sprite.visible = false;
         sprite.animation = new Animation.Holder({
@@ -148,12 +161,21 @@ S.BonusWheel = {
                     }
                 },
                 {
-                    prop: "scale",
+                    prop: "width",
                     animate: {
-                        200: {x: me.WHEEL_ITEMS_STARTING_SCALE, y: me.WHEEL_ITEMS_STARTING_SCALE},
-                        1500: {x: 1, y: 1},
-                        5000: {x: 1, y: 1},
-                        5500: {x: me.WHEEL_ITEMS_STARTING_SCALE, y: me.WHEEL_ITEMS_STARTING_SCALE},
+                        200: me.WHEEL_ITEM_CONFIG.width,
+                        1500: me.WHEEL_ITEM_CONFIG.width * 3,
+                        5000: me.WHEEL_ITEM_CONFIG.width * 3,
+                        5500: me.WHEEL_ITEM_CONFIG.width
+                    }
+                },
+                {
+                    prop: "height",
+                    animate: {
+                        200: me.WHEEL_ITEM_CONFIG.height,
+                        1500: me.WHEEL_ITEM_CONFIG.height * 3,
+                        5000: me.WHEEL_ITEM_CONFIG.height * 3,
+                        5500: me.WHEEL_ITEM_CONFIG.height
                     }
                 }
             ]
@@ -176,7 +198,7 @@ S.BonusWheel = {
     },
 
     _initSprite: function (imageName, blendMode) {
-        var sprite = new PIXI.Sprite.fromImage("assets/"+imageName+".png");
+        var sprite = new PIXI.Sprite.fromImage("assets/images/prizes/"+imageName+".png");
 
         sprite.anchor.set(0.5, 0.5);
         sprite.blendMode = blendMode;
@@ -454,11 +476,14 @@ S.BonusWheel = {
 
     playGiftAnimation: function (name, onEndCallback) {
         var me = this,
-            gift = me.gift;
+            gift = me.gift,
+            totalSectorsNum = me.sectorItemsList.length,
+            currentItemIndex = Math.round( totalSectorsNum / me.CIRCLE_DEG * me.stopAngle),
+            currentWheelItem = me.wheelItems[currentItemIndex];
 
-        me._hideCurrentWheelItem();
+        currentWheelItem.hide();
 
-        gift.texture = new PIXI.Sprite.fromImage("assets/" + name + ".png").texture;
+        gift.texture = currentWheelItem.texture;
         gift.visible = true;
 
         gift.animation.onEnd = function () {
@@ -469,15 +494,6 @@ S.BonusWheel = {
         gift.animation.play();
 
         me.bgAnimation.state.setAnimation(0, 'win', true);
-    },
-
-    _hideCurrentWheelItem: function(){
-        var me = this,
-            totalSectorsNum = me.sectorItemsList.length,
-            currentItemIndex = Math.round( totalSectorsNum / me.CIRCLE_DEG * me.stopAngle),
-            currentWheelItem = me.wheelItems[currentItemIndex];
-
-        currentWheelItem.hide();
     },
 
     reset: function () {
@@ -498,9 +514,14 @@ S.BonusWheel = {
                 resolve();
             })
         })
+    },
+
+    changeTexture: function (itemIndex, texture) {
+        console.warn("trying to change texture");
+        this.wheelItems[itemIndex].texture = texture;
     }
 
 
 };
 
-S.BonusWheel = Sys.extend(PIXI.Container, S.BonusWheel, "S.bonusWheelBonusWheel");
+S.BonusWheel = Sys.extend(PIXI.Container, S.BonusWheel, "S.BonusWheel");
