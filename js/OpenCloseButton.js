@@ -1,6 +1,6 @@
 const CONFIG = {
     x: 10,
-        y: 10
+    y: 10
 };
 
 export class OpenCloseButton extends PIXI.Sprite{

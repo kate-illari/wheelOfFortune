@@ -1,3 +1,5 @@
+import {SoundButton} from "./SoundButton";
+import {FullScreenButton} from "./FullScreenButton";
 import {ScrollContainer} from "./ScrollContainer";
 import {StorageManager} from "./StorageItemsManager";
 import {BonusWheel} from "./BonusWheel";
@@ -12,12 +14,35 @@ document.body.appendChild(app.view);
 var ambientSound = new Audio("assets/sounds/ambient.mp3");
 var winSound = new Audio("assets/sounds/AUTOMOBILE.mp3");
 
-ambientSound.addEventListener("loadeddata", () => {
+function startAmbient() {
     ambientSound.volume = 0.5;
     ambientSound.play();
     ambientSound.loop = true;
+}
+
+ambientSound.addEventListener("loadeddata", () => {
+    startAmbient();
 });
 
+const soundButton = new SoundButton({
+    soundOn: function () {
+        ambientSound.volume = 0.5;
+        winSound.volume = 1;
+    },
+    soundOff: function () {
+        ambientSound.volume = 0;
+        winSound.volume = 0;
+    }
+});
+
+const fullScreenButton = new FullScreenButton({
+    enterFullscreenMode: function () {
+        document.documentElement.requestFullscreen();
+    },
+    exitFullscreenMode: function () {
+        document.exitFullscreen();
+    }
+});
 
 var scrollContainer = new ScrollContainer(0, 0, 500, 1000, 1500);
 
@@ -113,6 +138,8 @@ var menu = new Menu({
 //app.stage.addChild(menu);
 scrollContainer.addChild(menu);
 app.stage.addChild(scrollContainer);
+app.stage.addChild(soundButton);
+app.stage.addChild(fullScreenButton);
 app.stage.addChild(openCloseButton);
 
 function spacePressHandler(event) {

@@ -898,9 +898,6 @@ class BonusWheel extends PIXI.Container {
     
     constructor (config, onStartBounceCompleteCallback, app) {
         super();
-
-        console.error(app);
-
         var me = this;
 
         me.sectorItemsList = config.sectorItemsList;
@@ -919,7 +916,6 @@ class BonusWheel extends PIXI.Container {
         me.wheelItems = me._initWheelItems(me.sprite);
 
         //will be added to a separate spine slot:
-        console.error(config);
         me.highlightSprite = typeof config.image !== "undefined" ? me._initSprite(config.image, PIXI.BLEND_MODES.ADD) : me._initEmptySprite();
         me.sectorsAngles = me._mapSectorsAgles(config.sectors);
         me.animations = me._initAnimations(config);
@@ -988,8 +984,6 @@ class BonusWheel extends PIXI.Container {
 
         me.sectorItemsList.forEach(function (item, index) {
             sizedContainer = new PIXI.Container();
-
-            console.warn({item});
 
             bonusWheelItem = new _BonusWheelItem__WEBPACK_IMPORTED_MODULE_0__["BonusWheelItem"]({
                 parent: sizedContainer,
@@ -1340,7 +1334,6 @@ class BonusWheel extends PIXI.Container {
      * @returns {void}
      */
     setStoppingAngle (itemToStopOn) {
-        console.log({itemToStopOn});
         var me = this,
             targetAngles = me.sectorsAngles[itemToStopOn],
             targetAnglesCount = targetAngles.length,
@@ -1400,7 +1393,6 @@ class BonusWheel extends PIXI.Container {
     }
 
     changeTexture (itemIndex, texture) {
-        console.warn("trying to change texture");
         this.wheelItems[itemIndex].texture = texture;
     }
 
@@ -1462,6 +1454,51 @@ class BonusWheelItem extends PIXI.Sprite {
 
     show(){
         this.visible = true;
+    }
+}
+
+/***/ }),
+
+/***/ "./js/FullScreenButton.js":
+/*!********************************!*\
+  !*** ./js/FullScreenButton.js ***!
+  \********************************/
+/*! exports provided: FullScreenButton */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FullScreenButton", function() { return FullScreenButton; });
+const CONFIG = {
+    x: 100,
+    y: 10
+};
+
+class FullScreenButton extends PIXI.Sprite {
+    constructor (config) {
+        super();
+
+        this.texture = new PIXI.Texture.from("assets/images/buttons/fullscreen.png");
+        this.position.set(CONFIG.x, CONFIG.y);
+        this.interactive = true;
+        this.buttonMode = true;
+        this.on('pointerdown', this.onButtonClick.bind(this));
+        this.enterFullscreenMode = config.enterFullscreenMode;
+        this.exitFullscreenMode = config.exitFullscreenMode;
+
+        this.currentState = "off";
+    }
+
+    onButtonClick () {
+        if(this.currentState === "off"){
+            this.currentState = "on";
+            this.enterFullscreenMode();
+        } else if (this.currentState === "on"){
+            this.currentState = "off";
+            this.exitFullscreenMode();
+        } else {
+            console.error("Check for error, current state is ", this.currentState);
+        }
     }
 }
 
@@ -1705,7 +1742,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "OpenCloseButton", function() { return OpenCloseButton; });
 const CONFIG = {
     x: 10,
-        y: 10
+    y: 10
 };
 
 class OpenCloseButton extends PIXI.Sprite{
@@ -1892,6 +1929,61 @@ class ScrollContainer extends PIXI.Container{
 
 /***/ }),
 
+/***/ "./js/SoundButton.js":
+/*!***************************!*\
+  !*** ./js/SoundButton.js ***!
+  \***************************/
+/*! exports provided: SoundButton */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SoundButton", function() { return SoundButton; });
+const CONFIG = {
+    x: 50,
+    y: 10
+};
+
+class SoundButton extends PIXI.Sprite {
+    constructor (config) {
+        super();
+
+        this.position.set(CONFIG.x, CONFIG.y);
+        this.interactive = true;
+        this.buttonMode = true;
+        this.on('pointerdown', this.onButtonClick.bind(this));
+        this.soundOn = config.soundOn;
+        this.soundOff = config.soundOff;
+
+        this.currentState = "on";
+        this.setOnTexture();
+    }
+
+    onButtonClick () {
+        if(this.currentState === "off"){
+            this.currentState = "on";
+            this.setOnTexture();
+            this.soundOn();
+        } else if (this.currentState === "on"){
+            this.currentState = "off";
+            this.setOffTexture();
+            this.soundOff();
+        } else {
+            console.error("Check for error, current state is ", this.currentState);
+        }
+    }
+
+    setOffTexture () {
+        this.texture = new PIXI.Texture.from("assets/images/buttons/soundOff.png")
+    }
+
+    setOnTexture () {
+        this.texture = new PIXI.Texture.from("assets/images/buttons/soundOn.png")
+    }
+}
+
+/***/ }),
+
 /***/ "./js/StorageItemsManager.js":
 /*!***********************************!*\
   !*** ./js/StorageItemsManager.js ***!
@@ -1932,7 +2024,6 @@ class StorageManager{
             list.push(item.name);
         });
 
-        console.warn(list);
         return list;
     }
 
@@ -2083,11 +2174,15 @@ class StorageManager{
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "animationBuffer", function() { return animationBuffer; });
-/* harmony import */ var _ScrollContainer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ScrollContainer */ "./js/ScrollContainer.js");
-/* harmony import */ var _StorageItemsManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./StorageItemsManager */ "./js/StorageItemsManager.js");
-/* harmony import */ var _BonusWheel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./BonusWheel */ "./js/BonusWheel.js");
-/* harmony import */ var _OpenCloseButton__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./OpenCloseButton */ "./js/OpenCloseButton.js");
-/* harmony import */ var _Menu__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Menu */ "./js/Menu.js");
+/* harmony import */ var _SoundButton__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SoundButton */ "./js/SoundButton.js");
+/* harmony import */ var _FullScreenButton__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./FullScreenButton */ "./js/FullScreenButton.js");
+/* harmony import */ var _ScrollContainer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ScrollContainer */ "./js/ScrollContainer.js");
+/* harmony import */ var _StorageItemsManager__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./StorageItemsManager */ "./js/StorageItemsManager.js");
+/* harmony import */ var _BonusWheel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BonusWheel */ "./js/BonusWheel.js");
+/* harmony import */ var _OpenCloseButton__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./OpenCloseButton */ "./js/OpenCloseButton.js");
+/* harmony import */ var _Menu__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Menu */ "./js/Menu.js");
+
+
 
 
 
@@ -2102,14 +2197,37 @@ document.body.appendChild(app.view);
 var ambientSound = new Audio("assets/sounds/ambient.mp3");
 var winSound = new Audio("assets/sounds/AUTOMOBILE.mp3");
 
-ambientSound.addEventListener("loadeddata", () => {
+function startAmbient() {
     ambientSound.volume = 0.5;
     ambientSound.play();
     ambientSound.loop = true;
+}
+
+ambientSound.addEventListener("loadeddata", () => {
+    startAmbient();
 });
 
+const soundButton = new _SoundButton__WEBPACK_IMPORTED_MODULE_0__["SoundButton"]({
+    soundOn: function () {
+        ambientSound.volume = 0.5;
+        winSound.volume = 1;
+    },
+    soundOff: function () {
+        ambientSound.volume = 0;
+        winSound.volume = 0;
+    }
+});
 
-var scrollContainer = new _ScrollContainer__WEBPACK_IMPORTED_MODULE_0__["ScrollContainer"](0, 0, 500, 1000, 1500);
+const fullScreenButton = new _FullScreenButton__WEBPACK_IMPORTED_MODULE_1__["FullScreenButton"]({
+    enterFullscreenMode: function () {
+        document.documentElement.requestFullscreen();
+    },
+    exitFullscreenMode: function () {
+        document.exitFullscreen();
+    }
+});
+
+var scrollContainer = new _ScrollContainer__WEBPACK_IMPORTED_MODULE_2__["ScrollContainer"](0, 0, 500, 1000, 1500);
 
 var prerenderCallbacks = [animate],
     lastTimeStepOccured = 0,
@@ -2119,10 +2237,10 @@ var prerenderCallbacks = [animate],
 lastTimeStepOccured = updateTime();
 
 if(!window.localStorage.getItem("itemsList")){
-    _StorageItemsManager__WEBPACK_IMPORTED_MODULE_1__["StorageManager"].initStorage();
+    _StorageItemsManager__WEBPACK_IMPORTED_MODULE_3__["StorageManager"].initStorage();
 }
 
-var wheel = new _BonusWheel__WEBPACK_IMPORTED_MODULE_2__["BonusWheel"]({
+var wheel = new _BonusWheel__WEBPACK_IMPORTED_MODULE_4__["BonusWheel"]({
     name: "freespins",
     spineSlot: "1st_back",
     highlightSlot: "1st_back2",
@@ -2131,7 +2249,7 @@ var wheel = new _BonusWheel__WEBPACK_IMPORTED_MODULE_2__["BonusWheel"]({
     minSpeed: 0.15,
     accelerationDuration: 1800,
     minimumSpinsBeforeStop: 3,
-    sectorItemsList: _StorageItemsManager__WEBPACK_IMPORTED_MODULE_1__["StorageManager"].getSectorItemsList(),
+    sectorItemsList: _StorageItemsManager__WEBPACK_IMPORTED_MODULE_3__["StorageManager"].getSectorItemsList(),
     image: "SYM0"
 }, function () {
     console.log("onStartBounceCompleteCallback");
@@ -2182,7 +2300,7 @@ function updateTime() {
 
 app.stage.addChild(wheel);
 
-var openCloseButton = new _OpenCloseButton__WEBPACK_IMPORTED_MODULE_3__["OpenCloseButton"]({
+var openCloseButton = new _OpenCloseButton__WEBPACK_IMPORTED_MODULE_5__["OpenCloseButton"]({
     openCallback: function () {
         menu.showMenu();
     },
@@ -2191,23 +2309,25 @@ var openCloseButton = new _OpenCloseButton__WEBPACK_IMPORTED_MODULE_3__["OpenClo
     }
 });
 
-var menu = new _Menu__WEBPACK_IMPORTED_MODULE_4__["Menu"]({
+var menu = new _Menu__WEBPACK_IMPORTED_MODULE_6__["Menu"]({
     onItemImgChange: function (index, texture) {
         wheel.changeTexture(index, texture);
     },
     onCountChange: function (index, count) {
-        _StorageItemsManager__WEBPACK_IMPORTED_MODULE_1__["StorageManager"].setItemCount(index, count);
+        _StorageItemsManager__WEBPACK_IMPORTED_MODULE_3__["StorageManager"].setItemCount(index, count);
     }
 });
 
 //app.stage.addChild(menu);
 scrollContainer.addChild(menu);
 app.stage.addChild(scrollContainer);
+app.stage.addChild(soundButton);
+app.stage.addChild(fullScreenButton);
 app.stage.addChild(openCloseButton);
 
 function spacePressHandler(event) {
     if(event.keyCode === 32){
-        var itemsLeft = !_StorageItemsManager__WEBPACK_IMPORTED_MODULE_1__["StorageManager"].isNoMoreItems(),
+        var itemsLeft = !_StorageItemsManager__WEBPACK_IMPORTED_MODULE_3__["StorageManager"].isNoMoreItems(),
             itemsList = JSON.parse(window.localStorage.getItem("itemsList")),
             sectorToStopOn;
 
@@ -2215,7 +2335,7 @@ function spacePressHandler(event) {
             console.error("no more items at all");
         } else {
             winSound.play();
-            sectorToStopOn = _StorageItemsManager__WEBPACK_IMPORTED_MODULE_1__["StorageManager"].findSectorToStopOn();
+            sectorToStopOn = _StorageItemsManager__WEBPACK_IMPORTED_MODULE_3__["StorageManager"].findSectorToStopOn();
             menu.onStorageUpdated();
             console.warn("stopping at: ", sectorToStopOn);
 

@@ -28,7 +28,6 @@ export class StorageManager{
             list.push(item.name);
         });
 
-        console.warn(list);
         return list;
     }
 
