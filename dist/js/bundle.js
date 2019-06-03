@@ -926,6 +926,7 @@ class BonusWheel extends PIXI.Container {
         me.gift = me._initGiftSprite(me, "SYM0");
 
         me.reset();
+        me.refresh();
     }
 
     _initBackground (container, imageName) {
@@ -1396,6 +1397,9 @@ class BonusWheel extends PIXI.Container {
         this.wheelItems[itemIndex].texture = texture;
     }
 
+    refresh () {
+        this.scale.set(window.innerHeight / 1080);
+    }
 
 }
 
@@ -2292,7 +2296,6 @@ function updateTime() {
     }
 
     currentStepTime = diff | 0;
-
     currentTime += currentStepTime;
 
     return now;
@@ -2324,6 +2327,12 @@ app.stage.addChild(scrollContainer);
 app.stage.addChild(soundButton);
 app.stage.addChild(fullScreenButton);
 app.stage.addChild(openCloseButton);
+
+
+window.addEventListener("resize", refreshAll);
+function refreshAll() {
+    wheel.refresh();
+}
 
 function spacePressHandler(event) {
     if(event.keyCode === 32){

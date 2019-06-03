@@ -49,6 +49,7 @@ export class BonusWheel extends PIXI.Container {
         me.gift = me._initGiftSprite(me, "SYM0");
 
         me.reset();
+        me.refresh();
     }
 
     _initBackground (container, imageName) {
@@ -519,5 +520,8 @@ export class BonusWheel extends PIXI.Container {
         this.wheelItems[itemIndex].texture = texture;
     }
 
+    refresh () {
+        this.scale.set(window.innerHeight / 1080);
+    }
 
 }

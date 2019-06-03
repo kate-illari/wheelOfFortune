@@ -109,7 +109,6 @@ function updateTime() {
     }
 
     currentStepTime = diff | 0;
-
     currentTime += currentStepTime;
 
     return now;
@@ -141,6 +140,12 @@ app.stage.addChild(scrollContainer);
 app.stage.addChild(soundButton);
 app.stage.addChild(fullScreenButton);
 app.stage.addChild(openCloseButton);
+
+
+window.addEventListener("resize", refreshAll);
+function refreshAll() {
+    wheel.refresh();
+}
 
 function spacePressHandler(event) {
     if(event.keyCode === 32){
